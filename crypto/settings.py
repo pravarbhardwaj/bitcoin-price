@@ -20,6 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+#MOVE THIS TO .env
 SECRET_KEY = 'django-insecure-pbaioany5k$co3cix2xmse8^3btu#h02beo6e^=05@3(bd)n1n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -122,3 +123,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#MOVE THIS TO .ENV
+EMAIL_HOST = 'smtp.mailtrap.io'
+EMAIL_HOST_USER = 'cc5486c7b88312'
+EMAIL_HOST_PASSWORD = 'ab22b2f769556c'
+EMAIL_PORT = '2525'

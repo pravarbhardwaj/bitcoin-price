@@ -1,19 +1,14 @@
-from django.shortcuts import render
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
 from .serializers import BitcoinSerializer
 from .models import Bitcoin
 from rest_framework import viewsets
 import requests
-
-from datetime import timezone
 import datetime
-from django.utils.timezone import make_aware
-  
+from django.core.mail import send_mail 
+from django.core import mail
 import pytz
 
-
-# Create your views here.
 
 @api_view(['GET'])
 def data(request):
@@ -27,11 +22,30 @@ class BitcoinViewSet(viewsets.ModelViewSet):
         return data
 
     def save_bitcoin_data(self):
-        res = requests.get('https://api.coingecko.com/api/v3/coins/bitcoin')
-        response = res.json()
-        price = response['market_data']['current_price']['usd']
+        try:
+            prevPrice = Bitcoin.objects.all().last()
+            prevPrice = prevPrice.price if prevPrice else None
+            res = requests.get('https://api.coingecko.com/api/v3/coins/bitcoin')
+            response = res.json()
+            price = response['market_data']['current_price']['usd']
+            dt = datetime.datetime.now()
+            dt_utc = dt.astimezone(pytz.UTC)
+            bitcoin_object = Bitcoin.objects.create(price=price, timestamp=dt_utc)
+            bitcoin_object.save()
+            if prevPrice and prevPrice != price:
+                self.send_email(prevPrice, price)
+        except Exception as e:
+            print(e)
 
-        dt = datetime.datetime.now()
-        dt_utc = dt.astimezone(pytz.UTC)
-        bitcoin_object = Bitcoin.objects.create(price=price, timestamp=dt_utc)
-        bitcoin_object.save()
+    def send_email(self, prevPrice, currPrice):
+        try:
+            email = mail.EmailMessage(
+                'Bitcoin Price has changed',
+                f'Bitcoin Price has changed from {prevPrice} USD to {currPrice} USD',
+                'from@localdjangoapp',
+                ['sandbox@mailtrap'],
+            )
+            email.send()
+            print('BITCOIN PRICE CHANGED, EMAIL SENT')
+        except Exception as e:
+            print(e)
