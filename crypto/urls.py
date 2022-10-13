@@ -15,7 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from bitcoin import views as bitcoin
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('app/prices/btc', bitcoin.data, name='bitcoin')
+    
 ]

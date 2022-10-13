@@ -1,3 +1,8 @@
 from django.db import models
 
-# Create your models here.
+class Bitcoin(models.Model):
+    timestamp = models.TimeField(primary_key=True, max_length=264, unique=True)
+    price = models.IntegerField()
+
+    def __timestamp__(self) -> timestamp:
+        return self.timestamp
