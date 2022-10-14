@@ -19,6 +19,6 @@ from bitcoin import views as bitcoin
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('app/prices/btc', bitcoin.data, name='bitcoin')
+    path('api/prices/btc', bitcoin.apiData.as_view())
     
 ]

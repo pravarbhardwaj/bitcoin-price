@@ -1,22 +1,31 @@
-from rest_framework.decorators import api_view
-from django.http import JsonResponse
 from .serializers import BitcoinSerializer
 from .models import Bitcoin
 from rest_framework import viewsets
 import requests
 import datetime
-from django.core.mail import send_mail 
 from django.core import mail
 import pytz
+from rest_framework.views import APIView
+from rest_framework.pagination import LimitOffsetPagination
 
 
-@api_view(['GET'])
-def data(request):
-    bitcoin = Bitcoin.objects.all()
-    bitcoin = BitcoinSerializer(bitcoin, many=True)
-    return JsonResponse(bitcoin.data, safe=False)
+class apiData(APIView):    
+    def get(self, request):
+        paginator = LimitOffsetPagination()
+        date = request.GET.get('date', '')
+        bitcoin = Bitcoin.objects.all()
+        if date:
+            dt = datetime.datetime.strptime(date, f"%d-%m-%Y")
+            end_dt = dt + datetime.timedelta(hours=23, minutes=59, seconds=59)
+            bitcoin = bitcoin.filter(timestamp__gte=dt, timestamp__lte=end_dt)
+        result_page = paginator.paginate_queryset(bitcoin, request)
+        bitcoin = BitcoinSerializer(result_page, many=True)
+        return_data = paginator.get_paginated_response(bitcoin.data)
+        return return_data
 
+        
 class BitcoinViewSet(viewsets.ModelViewSet):
+    
     def get_queryset_data(self):
         data = Bitcoin.objects.all()
         return data
