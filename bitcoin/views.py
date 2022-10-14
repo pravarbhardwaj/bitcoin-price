@@ -11,16 +11,17 @@ from rest_framework.pagination import LimitOffsetPagination
 
 class apiData(APIView):    
     def get(self, request):
-        paginator = LimitOffsetPagination()
         date = request.GET.get('date', '')
         bitcoin = Bitcoin.objects.all()
         if date:
             dt = datetime.datetime.strptime(date, f"%d-%m-%Y")
-            end_dt = dt + datetime.timedelta(hours=23, minutes=59, seconds=59)
-            bitcoin = bitcoin.filter(timestamp__gte=dt, timestamp__lte=end_dt)
+            start = dt.replace(hour=0, minute=0, second=0, microsecond=0)
+            end = dt.replace(hour=23, minute=59, second=59, microsecond=999999)
+            bitcoin = bitcoin.filter(timestamp__range=(start, end))
+        paginator = LimitOffsetPagination()
         result_page = paginator.paginate_queryset(bitcoin, request)
-        bitcoin = BitcoinSerializer(result_page, many=True)
-        return_data = paginator.get_paginated_response(bitcoin.data)
+        bitcoinSerializedData = BitcoinSerializer(result_page, many=True)
+        return_data = paginator.get_paginated_response(bitcoinSerializedData.data)
         return return_data
 
         
