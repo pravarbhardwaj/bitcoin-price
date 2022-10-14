@@ -2,7 +2,7 @@
 
 HOW TO RUN PROJECT
 
-Add credentials to .env-sample and rename it to .env in folder project/crypto/
+Add credentials to .env-sample and rename it to .env in folder root/crypto/
 
 run - ```docker-compose build``` - to build the project 
 
